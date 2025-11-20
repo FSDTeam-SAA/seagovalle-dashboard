@@ -5,6 +5,7 @@ export interface Coupon {
   discountType: 'Percentage' | 'Flat' | 'BuyXGetY' | 'FixedPrice'
   code: string
   discountValue?: number
+  discountAmount?: number
   startDate: string
   endDate: string
   isActive: boolean
