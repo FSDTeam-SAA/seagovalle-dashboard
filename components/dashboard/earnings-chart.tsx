@@ -42,7 +42,18 @@ export function EarningsChart() {
     }));
   }, [data]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  interface TooltipProps {
+    active?: boolean
+    payload?: Array<{
+      payload: {
+        month: string
+        earnings: number
+        orders: number
+      }
+    }>
+  }
+
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
     if (!active || !payload?.length) return null;
     const { month, earnings, orders } = payload[0].payload;
     return (

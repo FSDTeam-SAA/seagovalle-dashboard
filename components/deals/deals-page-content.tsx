@@ -19,6 +19,8 @@ import { useCreateCoupon, useDeleteCoupon, useToggleCouponStatus } from '@/lib/h
 import { Skeleton } from '@/components/ui/skeleton'
 import { useRouter } from 'next/navigation'
 
+import { CreateCouponSchema } from '@/lib/schemas/coupon-schema'
+
 export function DealsPageContent() {
   const router = useRouter()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -46,7 +48,7 @@ export function DealsPageContent() {
     },
   ]
 
-  const handleCreateCoupon = async (data: any) => {
+  const handleCreateCoupon = async (data: CreateCouponSchema) => {
     await createMutation.mutateAsync(data)
     setIsAddDialogOpen(false)
   }

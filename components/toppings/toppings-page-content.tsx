@@ -43,13 +43,14 @@ import {
 import { CreateToppingSchema } from '@/lib/schemas/topping-schema'
 import { Topping } from '@/lib/types/topping'
 import { Plus } from 'lucide-react'
+import image from 'next/image'
 
 export function ToppingsPageContent() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingTopping, setEditingTopping] = useState<Topping | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-
+console.log(editingTopping)
   const { data: adminData, isLoading } = useGetToppingsAdmin()
   const createTopping = useCreateTopping()
   const updateTopping = useUpdateTopping(editingTopping?._id || '')
@@ -234,6 +235,7 @@ export function ToppingsPageContent() {
                       price: editingTopping.price,
                       category: editingTopping.category,
                       description: editingTopping.description || '',
+                      image: typeof editingTopping.image === 'object' ? editingTopping.image?.url : editingTopping.image
                     }
                   : undefined
               }

@@ -13,6 +13,8 @@ import { useState } from "react";
 import { useGetOrders } from "@/lib/hooks/use-orders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
+import { OrderDetailsDialog } from "./order-details-dialog";
+import { Order } from "@/lib/types/order";
 
 export function RecentOrdersTable() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,6 +54,14 @@ export function RecentOrdersTable() {
       default:
         return status;
     }
+  };
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
   };
 
   return (
@@ -144,7 +154,11 @@ export function RecentOrdersTable() {
                         })}
                       </td>
                       <td className="py-4 px-4 text-sm">
-                        <Button variant="ghost" size="sm">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewOrder(order)}
+                        >
                           View
                         </Button>
                       </td>
@@ -192,6 +206,11 @@ export function RecentOrdersTable() {
           )}
         </div>
       </CardContent>
+      <OrderDetailsDialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        order={selectedOrder}
+      />
     </Card>
   );
 }

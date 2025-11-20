@@ -28,7 +28,7 @@ import { useState } from 'react'
 interface ToppingFormProps {
   onSubmit: (data: CreateToppingSchema & { image?: File | null }) => Promise<void>
   isLoading?: boolean
-  initialData?: Partial<CreateToppingSchema>
+  initialData?: Partial<Omit<CreateToppingSchema, 'image'>> & { image?: string | File | null }
   categories?: string[]
   onCancel?: () => void
 }
@@ -41,6 +41,7 @@ export function ToppingForm({
   onCancel,
 }: ToppingFormProps) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  console.log(initialData)
 
   const form = useForm<CreateToppingSchema>({
     resolver: zodResolver(createToppingSchema),

@@ -172,12 +172,12 @@ export function OrdersPageContent() {
               <CardTitle className="text-lg">Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 max-h-[600px] overflow-y-auto">
                 {filteredOrders.map((order) => (
                   <button
                     key={order._id}
                     onClick={() => setSelectedOrderId(order._id)}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                    className={`w-full cursor-pointer text-left p-3 rounded-lg border transition-colors ${
                       selectedOrder?._id === order._id
                         ? "bg-primary text-primary-foreground border-primary"
                         : "border-border hover:bg-muted"

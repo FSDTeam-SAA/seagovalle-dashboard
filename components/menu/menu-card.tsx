@@ -39,7 +39,7 @@ export function MenuCard({
   const thumbnailImage = images?.[0].url || '/placeholder.svg'
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow pt-0">
       {/* Image Section */}
       <div className="relative h-48 bg-gradient-to-br from-primary/20 to-secondary/20 overflow-hidden">
         <img
@@ -79,15 +79,15 @@ export function MenuCard({
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="text-center">
             <p className="text-muted-foreground">Small</p>
-            <p className="font-bold text-primary">${price.small.toFixed(2)}</p>
+            <p className="font-bold text-primary text-2xl">${price.small.toFixed(2)}</p>
           </div>
           <div className="text-center">
             <p className="text-muted-foreground">Medium</p>
-            <p className="font-bold text-primary">${price.medium.toFixed(2)}</p>
+            <p className="font-bold text-primary text-2xl">${price.medium.toFixed(2)}</p>
           </div>
           <div className="text-center">
             <p className="text-muted-foreground">Large</p>
-            <p className="font-bold text-primary">${price.large.toFixed(2)}</p>
+            <p className="font-bold text-primary text-2xl">${price.large.toFixed(2)}</p>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ export function MenuCard({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 gap-2 text-destructive hover:text-destructive"
+            className="flex-1 gap-2 text-destructive hover:bg"
             onClick={() => onDelete(_id)}
           >
             <Trash2 size={16} /> Delete

@@ -43,7 +43,7 @@ export function CouponForm({
       description: initialData.description,
       discountType: initialData.discountType,
       code: initialData.code,
-      discountValue: initialData.discountValue,
+      discountAmount: initialData.discountValue,
       startDate: initialData.startDate.split('T')[0],
       endDate: initialData.endDate.split('T')[0],
       isActive: initialData.isActive,
@@ -52,7 +52,7 @@ export function CouponForm({
       description: '',
       discountType: 'Percentage',
       code: '',
-      discountValue: 0,
+      discountAmount: 0,
       startDate: '',
       endDate: '',
       isActive: true,
@@ -128,7 +128,7 @@ export function CouponForm({
           {/* Discount Value */}
           <FormField
             control={form.control}
-            name="discountValue"
+            name="discountAmount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Discount Value</FormLabel>

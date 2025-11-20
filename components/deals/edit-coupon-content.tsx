@@ -9,6 +9,8 @@ import { useUpdateCoupon } from '@/lib/hooks/use-coupon-mutations'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowLeft } from 'lucide-react'
 
+import { CreateCouponSchema } from '@/lib/schemas/coupon-schema'
+
 export function EditCouponContent() {
   const router = useRouter()
   const params = useParams()
@@ -17,7 +19,7 @@ export function EditCouponContent() {
   const { data: coupon, isLoading: isLoadingCoupon } = useGetCoupon(couponId)
   const updateMutation = useUpdateCoupon(couponId)
 
-  const handleUpdateCoupon = async (data: any) => {
+  const handleUpdateCoupon = async (data: CreateCouponSchema) => {
     await updateMutation.mutateAsync(data)
     router.push('/deals')
   }

@@ -41,7 +41,7 @@ export function MenuPageContent() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
+  // const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
 
   const {
     data: menuResponse,
@@ -180,7 +180,7 @@ export function MenuPageContent() {
       </div>
 
       {/* View Toggle */}
-      <div className="flex gap-2">
+      {/* <div className="flex gap-2">
         <Button
           variant={viewMode === 'grid' ? 'default' : 'outline'}
           onClick={() => setViewMode('grid')}
@@ -195,16 +195,14 @@ export function MenuPageContent() {
         >
           Table View
         </Button>
-      </div>
+      </div> */}
 
       {/* Content */}
       {isLoading ? (
         <div
-          className={`grid ${
-            viewMode === 'grid'
-              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-              : 'grid-cols-1'
-          } gap-6`}
+          className={`grid 
+               'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          gap-6`}
         >
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i}>
@@ -218,7 +216,7 @@ export function MenuPageContent() {
           ))}
         </div>
       ) : filteredItems.length > 0 ? (
-        viewMode === 'grid' ? (
+         (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredItems.map((item) => (
               <MenuCard
@@ -236,13 +234,7 @@ export function MenuPageContent() {
               />
             ))}
           </div>
-        ) : (
-          <Card>
-            <CardContent className="p-0">
-              <p className="text-muted-foreground p-6">Table view coming soon</p>
-            </CardContent>
-          </Card>
-        )
+        ) 
       ) : (
         <Card>
           <CardContent className="py-12 text-center">

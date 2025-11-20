@@ -8,7 +8,7 @@ const couponSchemaBase = z.object({
     .min(2, 'Code must be at least 2 characters')
     .max(20, 'Code must be at most 20 characters')
     .toUpperCase(),
-  discountValue: z.number().positive('Discount value must be positive').optional(),
+  discountAmount: z.number().positive('Discount value must be positive').optional(),
   startDate: z.string().refine(
     (date) => {
       const selectedDate = new Date(date)

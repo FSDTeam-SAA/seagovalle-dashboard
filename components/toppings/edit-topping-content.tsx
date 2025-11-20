@@ -94,7 +94,7 @@ export function EditToppingContent() {
               price: topping.price,
               category: topping.category,
               description: topping.description,
-              image: undefined,
+              image: typeof topping.image === 'object' ? topping.image?.url : topping.image,
             }}
             categories={allCategories}
             onCancel={() => router.back()}

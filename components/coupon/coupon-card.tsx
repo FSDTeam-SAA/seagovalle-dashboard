@@ -99,7 +99,7 @@ export function CouponCard({
 
             {/* Actions */}
             <div className="md:col-span-1 flex gap-1">
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onToggleStatus?.(coupon._id)}
@@ -107,7 +107,7 @@ export function CouponCard({
                 title={coupon.isActive ? 'Deactivate' : 'Activate'}
               >
                 <Power size={16} />
-              </Button>
+              </Button> */}
               <Button
                 variant="ghost"
                 size="sm"
