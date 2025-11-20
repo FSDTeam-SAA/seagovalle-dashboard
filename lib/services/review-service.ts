@@ -77,8 +77,8 @@ class ReviewService {
    */
   async approveReview(id: string, signal?: AbortSignal): Promise<Review> {
     const response = await axiosInstance.put<ReviewResponse>(
-      `${this.reviewsUrl}/${id}/approve`,
-      {},
+      `${this.reviewsUrl}/toggle-status/${id}`,
+      {status: "approved"},
       { signal }
     );
     return response.data.data;
@@ -89,8 +89,10 @@ class ReviewService {
    */
   async rejectReview(id: string, signal?: AbortSignal): Promise<Review> {
     const response = await axiosInstance.put<ReviewResponse>(
-      `${this.reviewsUrl}/${id}/reject`,
-      {},
+      `${this.reviewsUrl}/toggle-status/${id}`,
+      {
+        status:"rejected"
+      },
       { signal }
     );
     return response.data.data;

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createCouponSchema, CreateCouponSchema } from '@/lib/schemas/coupon-schema'
@@ -43,7 +44,7 @@ export function CouponForm({
       description: initialData.description,
       discountType: initialData.discountType,
       code: initialData.code,
-      discountAmount: initialData.discountValue,
+      discountAmount: initialData.discountValue ?? (initialData as any).discountAmount,
       startDate: initialData.startDate.split('T')[0],
       endDate: initialData.endDate.split('T')[0],
       isActive: initialData.isActive,
@@ -58,6 +59,21 @@ export function CouponForm({
       isActive: true,
     },
   })
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        title: initialData.title,
+        description: initialData.description,
+        discountType: initialData.discountType,
+        code: initialData.code,
+        discountAmount: initialData.discountValue ?? (initialData as any).discountAmount,
+        startDate: initialData.startDate.split('T')[0],
+        endDate: initialData.endDate.split('T')[0],
+        isActive: initialData.isActive,
+      })
+    }
+  }, [initialData, form])
 
   return (
     <Form {...form}>

@@ -20,7 +20,11 @@ export function EditCouponContent() {
   const updateMutation = useUpdateCoupon(couponId)
 
   const handleUpdateCoupon = async (data: CreateCouponSchema) => {
-    await updateMutation.mutateAsync(data)
+    const { discountAmount, ...rest } = data
+    await updateMutation.mutateAsync({
+      ...rest,
+      discountAmount: discountAmount,
+    })
     router.push('/deals')
   }
 
