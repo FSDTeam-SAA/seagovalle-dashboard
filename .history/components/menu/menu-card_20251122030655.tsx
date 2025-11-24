@@ -29,13 +29,14 @@ export function MenuCard({
   category,
   price,
   images,
+  rating = 5.0,
   isAvailable = true,
   onEdit,
   onDelete,
   onToggleStatus,
   isToggling = false,
 }: MenuCardProps) {
-  const thumbnailImage = images?.[0]?.url || '/placeholder.svg'
+  const thumbnailImage = images?.[0].url || '/placeholder.svg'
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow pt-0">

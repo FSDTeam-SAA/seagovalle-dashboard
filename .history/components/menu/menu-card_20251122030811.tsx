@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Trash2, Edit, Star, Power } from 'lucide-react'
+import { Trash2, Edit, Star, Power, ToggleRight } from 'lucide-react'
 interface MenuImage{
   url: string
 }
@@ -35,7 +35,7 @@ export function MenuCard({
   onToggleStatus,
   isToggling = false,
 }: MenuCardProps) {
-  const thumbnailImage = images?.[0]?.url || '/placeholder.svg'
+  const thumbnailImage = images?.[0].url || '/placeholder.svg'
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow pt-0">
@@ -117,7 +117,7 @@ export function MenuCard({
               disabled={isToggling}
               title={isAvailable ? 'Deactivate' : 'Activate'}
             >
-              <Power size={16} />
+              <ToggleRight size={16} />
             </Button>
           )}
         </div>

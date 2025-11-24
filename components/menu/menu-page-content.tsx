@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
-import { MenuCard } from '@/components/menu/menu-card'
-import { MenuForm } from '@/components/menu/menu-form'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { MenuCard } from "@/components/menu/menu-card";
+import { MenuForm } from "@/components/menu/menu-form";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,24 +23,24 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
-import { Skeleton } from '@/components/ui/skeleton'
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAdminGetMenus,
   useCreateMenu,
   useUpdateMenu,
   useDeleteMenu,
   useToggleMenuStatus,
-} from '@/lib/hooks/use-menu-queries'
-import { MenuItem, MenuFormData } from '@/lib/services/menu-service'
+} from "@/lib/hooks/use-menu-queries";
+import { MenuFormData } from "@/lib/services/menu-service";
 
 export function MenuPageContent() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   // const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
 
   const {
@@ -48,70 +48,76 @@ export function MenuPageContent() {
     isLoading,
     isError,
     error: queryError,
-  } = useAdminGetMenus()
+  } = useAdminGetMenus();
 
-  const menuItems = menuResponse?.data || []
+  const menuItems = menuResponse?.data || [];
 
-  const createMenuMutation = useCreateMenu()
-  const updateMenuMutation = useUpdateMenu(editingId || '')
-  const deleteMenuMutation = useDeleteMenu()
-  const toggleStatusMutation = useToggleMenuStatus()
+  const createMenuMutation = useCreateMenu();
+  const updateMenuMutation = useUpdateMenu(editingId || "");
+  const deleteMenuMutation = useDeleteMenu();
+  const toggleStatusMutation = useToggleMenuStatus();
 
-  const categories = ['All', 'Vegetarian', 'Meat', 'Seafood', 'Premium', 'Special']
+  const categories = [
+    "All",
+    "Vegetarian",
+    "Meat",
+    "Seafood",
+    "Premium",
+    "Special",
+  ];
 
   const filteredItems = useMemo(() => {
     return menuItems?.filter((item) => {
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+        item.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory
+      const matchesCategory =
+        selectedCategory === "All" || item.category === selectedCategory;
 
-      return matchesSearch && matchesCategory
-    })
-  }, [menuItems, searchQuery, selectedCategory])
+      return matchesSearch && matchesCategory;
+    });
+  }, [menuItems, searchQuery, selectedCategory]);
 
   const handleSubmitForm = async (formData: MenuFormData) => {
     try {
       if (editingId) {
-        await updateMenuMutation.mutateAsync(formData)
-        toast.success('Pizza updated successfully')
+        await updateMenuMutation.mutateAsync(formData);
+        toast.success("Pizza updated successfully");
       } else {
-        await createMenuMutation.mutateAsync(formData)
-        toast.success('Pizza created successfully')
+        await createMenuMutation.mutateAsync(formData);
+        toast.success("Pizza created successfully");
       }
-      setIsAddDialogOpen(false)
-      setEditingId(null)
+      setIsAddDialogOpen(false);
+      setEditingId(null);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'An error occurred'
-      )
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteMenuMutation.mutateAsync(id)
-      setDeleteConfirmId(null)
-      toast.success('Pizza deleted successfully')
+      await deleteMenuMutation.mutateAsync(id);
+      setDeleteConfirmId(null);
+      toast.success("Pizza deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete pizza')
+      toast.error("Failed to delete pizza");
     }
-  }
+  };
 
   const handleEdit = (id: string) => {
-    setEditingId(id)
-    setIsAddDialogOpen(true)
-  }
+    setEditingId(id);
+    setIsAddDialogOpen(true);
+  };
 
   const handleToggleStatus = async (id: string) => {
     try {
-      await toggleStatusMutation.mutateAsync(id)
-      toast.success('Status updated successfully')
+      await toggleStatusMutation.mutateAsync(id);
+      toast.success("Status updated successfully");
     } catch (error) {
-      toast.error('Failed to update status')
+      toast.error("Failed to update status");
     }
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -128,9 +134,13 @@ export function MenuPageContent() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit Pizza' : 'Add New Pizza'}</DialogTitle>
+              <DialogTitle>
+                {editingId ? "Edit Pizza" : "Add New Pizza"}
+              </DialogTitle>
               <DialogDescription>
-                {editingId ? 'Update pizza details' : 'Add a new pizza to your menu'}
+                {editingId
+                  ? "Update pizza details"
+                  : "Add a new pizza to your menu"}
               </DialogDescription>
             </DialogHeader>
             <MenuForm
@@ -153,7 +163,7 @@ export function MenuPageContent() {
         <Card className="border-destructive bg-destructive/10">
           <CardContent className="pt-6">
             <p className="text-destructive">
-              {queryError?.message || 'Failed to load menu items'}
+              {queryError?.message || "Failed to load menu items"}
             </p>
           </CardContent>
         </Card>
@@ -216,25 +226,23 @@ export function MenuPageContent() {
           ))}
         </div>
       ) : filteredItems.length > 0 ? (
-         (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <MenuCard
-                key={item._id}
-                _id={item._id}
-                name={item.name}
-                category={item.category}
-                description={item.description}
-                price={item.price}
-                images={item.images}
-                isAvailable={item.isAvailable}
-                onEdit={handleEdit}
-                onDelete={(id) => setDeleteConfirmId(id)}
-                onToggleStatus={handleToggleStatus}
-              />
-            ))}
-          </div>
-        ) 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredItems.map((item) => (
+            <MenuCard
+              key={item._id}
+              _id={item._id}
+              name={item.name}
+              category={item.category}
+              description={item.description}
+              price={item.price}
+              images={item.images}
+              isAvailable={item.isAvailable}
+              onEdit={handleEdit}
+              onDelete={(id) => setDeleteConfirmId(id)}
+              onToggleStatus={handleToggleStatus}
+            />
+          ))}
+        </div>
       ) : (
         <Card>
           <CardContent className="py-12 text-center">
@@ -246,12 +254,16 @@ export function MenuPageContent() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+      <AlertDialog
+        open={!!deleteConfirmId}
+        onOpenChange={() => setDeleteConfirmId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Pizza</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this pizza? This action cannot be undone.
+              Are you sure you want to delete this pizza? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">
@@ -261,11 +273,11 @@ export function MenuPageContent() {
               className="bg-destructive hover:bg-destructive/90"
               disabled={deleteMenuMutation.isPending}
             >
-              {deleteMenuMutation.isPending ? 'Deleting...' : 'Delete'}
+              {deleteMenuMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

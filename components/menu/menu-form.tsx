@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { X, Upload } from 'lucide-react'
-import { toast } from 'sonner'
-import { MenuFormData, MenuItem, MenuImage } from '@/lib/services/menu-service'
+} from "@/components/ui/select";
+import { X, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { MenuFormData, MenuItem, MenuImage } from "@/lib/services/menu-service";
 
 interface MenuFormProps {
-  initialData?: MenuItem
-  onSubmit: (data: MenuFormData) => Promise<void>
-  isLoading?: boolean
+  initialData?: MenuItem;
+  onSubmit: (data: MenuFormData) => Promise<void>;
+  isLoading?: boolean;
 }
 
 export function MenuForm({
@@ -28,97 +28,97 @@ export function MenuForm({
   isLoading = false,
 }: MenuFormProps) {
   const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    category: initialData?.category || '',
-    description: initialData?.description || '',
-    priceSmall: initialData?.price.small.toString() || '',
-    priceMedium: initialData?.price.medium.toString() || '',
-    priceLarge: initialData?.price.large.toString() || '',
-  })
+    name: initialData?.name || "",
+    category: initialData?.category || "",
+    description: initialData?.description || "",
+    priceSmall: initialData?.price.small.toString() || "",
+    priceMedium: initialData?.price.medium.toString() || "",
+    priceLarge: initialData?.price.large.toString() || "",
+  });
 
   console.log(initialData);
 
-  const [images, setImages] = useState<File[]>([])
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<MenuImage[]>(
     initialData?.images || []
-  )
-  
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [submitting, setSubmitting] = useState(false)
+  );
 
-  const categories = ['Vegetarian', 'Meat', 'Seafood', 'Premium', 'Special']
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const categories = ["Vegetarian", "Meat", "Seafood", "Premium", "Special"];
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Pizza name is required'
+      newErrors.name = "Pizza name is required";
     }
     if (!formData.category) {
-      newErrors.category = 'Category is required'
+      newErrors.category = "Category is required";
     }
     if (!formData.description.trim()) {
-      newErrors.description = 'Description is required'
+      newErrors.description = "Description is required";
     }
     if (!formData.priceSmall || isNaN(parseFloat(formData.priceSmall))) {
-      newErrors.priceSmall = 'Valid small price is required'
+      newErrors.priceSmall = "Valid small price is required";
     }
     if (!formData.priceMedium || isNaN(parseFloat(formData.priceMedium))) {
-      newErrors.priceMedium = 'Valid medium price is required'
+      newErrors.priceMedium = "Valid medium price is required";
     }
     if (!formData.priceLarge || isNaN(parseFloat(formData.priceLarge))) {
-      newErrors.priceLarge = 'Valid large price is required'
+      newErrors.priceLarge = "Valid large price is required";
     }
 
     if (!initialData && images.length === 0) {
-      newErrors.images = 'At least one image is required'
+      newErrors.images = "At least one image is required";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
+    const files = Array.from(e.target.files || []);
 
     files.forEach((file) => {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file')
-        return
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image must be less than 5MB')
-        return
+        toast.error("Image must be less than 5MB");
+        return;
       }
 
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImages((prev) => [...prev, file])
-        setImagePreviews((prev) => [...prev, reader.result as string])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
+        setImages((prev) => [...prev, file]);
+        setImagePreviews((prev) => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index))
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index))
-  }
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const removeExistingImage = (index: number) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== index))
-  }
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const menuFormData: MenuFormData = {
         name: formData.name,
@@ -130,18 +130,16 @@ export function MenuForm({
           large: formData.priceLarge,
         },
         images,
-        existingImages: existingImages.map((img) => img.url),
-      }
+        existingImages: existingImages.map((img) => img?.url),
+      };
 
-      await onSubmit(menuFormData)
+      await onSubmit(menuFormData);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'An error occurred'
-      )
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -153,7 +151,7 @@ export function MenuForm({
           placeholder="e.g., Classic Pepperoni"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className={errors.name ? 'border-destructive' : ''}
+          className={errors.name ? "border-destructive" : ""}
           disabled={isLoading}
         />
         {errors.name && (
@@ -171,7 +169,9 @@ export function MenuForm({
           }
           disabled={isLoading}
         >
-          <SelectTrigger className={errors.category ? 'border-destructive' : ''}>
+          <SelectTrigger
+            className={errors.category ? "border-destructive" : ""}
+          >
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
@@ -197,7 +197,9 @@ export function MenuForm({
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
           }
-          className={`min-h-24 ${errors.description ? 'border-destructive' : ''}`}
+          className={`min-h-24 ${
+            errors.description ? "border-destructive" : ""
+          }`}
           disabled={isLoading}
         />
         {errors.description && (
@@ -221,7 +223,7 @@ export function MenuForm({
               onChange={(e) =>
                 setFormData({ ...formData, priceSmall: e.target.value })
               }
-              className={errors.priceSmall ? 'border-destructive' : ''}
+              className={errors.priceSmall ? "border-destructive" : ""}
               disabled={isLoading}
             />
           </div>
@@ -244,12 +246,14 @@ export function MenuForm({
               onChange={(e) =>
                 setFormData({ ...formData, priceMedium: e.target.value })
               }
-              className={errors.priceMedium ? 'border-destructive' : ''}
+              className={errors.priceMedium ? "border-destructive" : ""}
               disabled={isLoading}
             />
           </div>
           {errors.priceMedium && (
-            <p className="text-xs text-destructive mt-1">{errors.priceMedium}</p>
+            <p className="text-xs text-destructive mt-1">
+              {errors.priceMedium}
+            </p>
           )}
         </div>
 
@@ -267,7 +271,7 @@ export function MenuForm({
               onChange={(e) =>
                 setFormData({ ...formData, priceLarge: e.target.value })
               }
-              className={errors.priceLarge ? 'border-destructive' : ''}
+              className={errors.priceLarge ? "border-destructive" : ""}
               disabled={isLoading}
             />
           </div>
@@ -304,12 +308,14 @@ export function MenuForm({
         {/* Image Previews */}
         {existingImages.length > 0 && (
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-2">Existing Images</p>
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              Existing Images
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
               {existingImages.map((image, index) => (
                 <div key={index} className="relative group">
                   <img
-                    src={image.url || '/placeholder.svg'}
+                    src={image?.url || "/placeholder.svg"}
                     alt={`Existing ${index}`}
                     className="w-full h-24 object-cover rounded-lg"
                   />
@@ -328,12 +334,14 @@ export function MenuForm({
         )}
         {imagePreviews.length > 0 && (
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-2">New Images</p>
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              New Images
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="relative group">
                   <img
-                    src={preview || '/placeholder.svg'}
+                    src={preview || "/placeholder.svg"}
                     alt={`Preview ${index}`}
                     className="w-full h-24 object-cover rounded-lg"
                   />
@@ -367,9 +375,9 @@ export function MenuForm({
           className="flex-1 bg-primary hover:bg-primary/90"
           disabled={isLoading}
         >
-          {isLoading ? 'Saving...' : initialData ? 'Update Pizza' : 'Add Pizza'}
+          {isLoading ? "Saving..." : initialData ? "Update Pizza" : "Add Pizza"}
         </Button>
       </div>
     </form>
-  )
+  );
 }

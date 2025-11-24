@@ -69,7 +69,7 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full max-w-lg border p-8 rounded-lg shadow-lg bg-white">
+    <div className="w-full max-w-lg border">
       <h2 className="text-3xl md:text-[40px] font-bold leading-[150%] font-playfair text-center mb-2">
         Welcome
       </h2>
@@ -145,7 +145,7 @@ export default function Login() {
                 <FormItem className="flex items-center space-x-2">
                   <FormControl>
                     <Checkbox
-                      className="cursor-pointer border-gray-400"
+                      className="cursor-pointer"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />

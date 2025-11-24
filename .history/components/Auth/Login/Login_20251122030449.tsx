@@ -145,7 +145,7 @@ export default function Login() {
                 <FormItem className="flex items-center space-x-2">
                   <FormControl>
                     <Checkbox
-                      className="cursor-pointer border-gray-400"
+                      className="cursor-pointer b"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
