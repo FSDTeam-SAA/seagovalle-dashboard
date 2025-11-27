@@ -4,15 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Trash2, Edit, Star, Power } from 'lucide-react'
-interface MenuImage{
+
+interface MenuImage {
   url: string
 }
+interface PriceObject {
+  small?: number
+  medium?: number
+  large?: number
+}
+
 interface MenuCardProps {
   _id: string
   name: string
   description: string
   category: string
-  price: { small: number; medium: number; large: number }
+  // accept either new array shape or legacy object shape
+  price?: number[] | PriceObject
+  // sizes might be numbers or strings depending on source
+  sizes?: (number | string)[]
+  pieces?: number[]
   images: MenuImage[]
   rating?: number
   isAvailable?: boolean
@@ -28,6 +39,8 @@ export function MenuCard({
   description,
   category,
   price,
+  sizes,
+  pieces,
   images,
   isAvailable = true,
   onEdit,
@@ -35,18 +48,32 @@ export function MenuCard({
   onToggleStatus,
   isToggling = false,
 }: MenuCardProps) {
-  const thumbnailImage = images?.[0]?.url || '/placeholder.svg'
+  const thumbnailImage = images?.[0]?.url || '/noimage.jpg'
+
+  // normalize price to an array for rendering
+  const priceArray: number[] = Array.isArray(price)
+    ? (price as number[])
+    : price
+    ? [
+        Number((price as PriceObject).small ?? NaN),
+        Number((price as PriceObject).medium ?? NaN),
+        Number((price as PriceObject).large ?? NaN),
+      ].filter((n) => !Number.isNaN(n))
+    : []
+
+  const sizesArray = Array.isArray(sizes) ? sizes : sizes ? [sizes] : []
+  const piecesArray = Array.isArray(pieces) ? pieces : pieces ? [pieces] : []
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow pt-0">
       {/* Image Section */}
       <div className="relative h-48 bg-gradient-to-br from-primary/20 to-secondary/20 overflow-hidden">
         <img
-          src={thumbnailImage || '/placeholder.svg'}
+          src={thumbnailImage || '/noimage.jpg'}
           alt={name}
           className="w-full h-full object-cover"
           onError={(e) => {
-            e.currentTarget.src = '/placeholder.svg'
+            e.currentTarget.src = '/noimage.jpg'
           }}
         />
         <Badge
@@ -63,30 +90,44 @@ export function MenuCard({
             <CardTitle className="text-lg">{name}</CardTitle>
             <p className="text-xs text-muted-foreground font-medium mt-1">{category}</p>
           </div>
-          {/* {rating && (
-            <div className="flex items-center gap-1">
-              <Star size={16} className="fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-            </div>
-          )} */}
         </div>
         <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Prices */}
+        {/* Prices / Sizes / Pieces */}
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="text-center">
-            <p className="text-muted-foreground">Small</p>
-            <p className="font-bold text-primary text-2xl">${price.small.toFixed(2)}</p>
+            <p className="text-muted-foreground">Prices</p>
+            {priceArray.length ? (
+              priceArray.map((p, index) => (
+                <p key={index} className="font-bold text-primary text-2xl">${p}</p>
+              ))
+            ) : (
+              <p className="text-muted-foreground">—</p>
+            )}
           </div>
+
           <div className="text-center">
-            <p className="text-muted-foreground">Medium</p>
-            <p className="font-bold text-primary text-2xl">${price.medium.toFixed(2)}</p>
+            <p className="text-muted-foreground">Sizes</p>
+            {sizesArray.length ? (
+              sizesArray.map((s, index) => (
+                <p key={index} className="font-bold text-primary text-2xl">{s}</p>
+              ))
+            ) : (
+              <p className="text-muted-foreground">—</p>
+            )}
           </div>
+
           <div className="text-center">
-            <p className="text-muted-foreground">Large</p>
-            <p className="font-bold text-primary text-2xl">${price.large.toFixed(2)}</p>
+            <p className="text-muted-foreground">Pieces</p>
+            {piecesArray.length ? (
+              piecesArray.map((p, index) => (
+                <p key={index} className="font-bold text-primary text-2xl">{p}</p>
+              ))
+            ) : (
+              <p className="text-muted-foreground">—</p>
+            )}
           </div>
         </div>
 

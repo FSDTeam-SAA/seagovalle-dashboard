@@ -57,14 +57,14 @@ export function MenuPageContent() {
   const deleteMenuMutation = useDeleteMenu();
   const toggleStatusMutation = useToggleMenuStatus();
 
-  const categories = [
-    "All",
-    "Vegetarian",
-    "Meat",
-    "Seafood",
-    "Premium",
-    "Special",
-  ];
+  // const categories = [
+  //   "All",
+  //   "Vegetarian",
+  //   "Meat",
+  //   "Seafood",
+  //   "Premium",
+  //   "Special",
+  // ];
 
   const filteredItems = useMemo(() => {
     return menuItems?.filter((item) => {
@@ -79,13 +79,16 @@ export function MenuPageContent() {
     });
   }, [menuItems, searchQuery, selectedCategory]);
 
-  const handleSubmitForm = async (formData: MenuFormData) => {
+  const handleSubmitForm = async (formData: any) => {
+    // coerce the runtime payload to the expected MenuFormData when calling mutations
+    const payload = formData as MenuFormData;
+
     try {
       if (editingId) {
-        await updateMenuMutation.mutateAsync(formData);
+        await updateMenuMutation.mutateAsync(payload);
         toast.success("Pizza updated successfully");
       } else {
-        await createMenuMutation.mutateAsync(formData);
+        await createMenuMutation.mutateAsync(payload);
         toast.success("Pizza created successfully");
       }
       setIsAddDialogOpen(false);
@@ -118,7 +121,7 @@ export function MenuPageContent() {
       toast.error("Failed to update status");
     }
   };
-
+ console.log('filteredItems', filteredItems)
   return (
     <div className="p-6 space-y-6">
       {/* Welcome Section */}
@@ -171,14 +174,14 @@ export function MenuPageContent() {
 
       {/* Filters */}
       <div className="space-y-4">
-        <Input
+        {/* <Input
           placeholder="Search by name or description..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-xs"
-        />
+        /> */}
 
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+        {/* <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
           <TabsList className="grid w-full max-w-2xl grid-cols-6">
             {categories.map((cat) => (
               <TabsTrigger key={cat} value={cat}>
@@ -186,7 +189,7 @@ export function MenuPageContent() {
               </TabsTrigger>
             ))}
           </TabsList>
-        </Tabs>
+        </Tabs> */}
       </div>
 
       {/* View Toggle */}
@@ -227,21 +230,29 @@ export function MenuPageContent() {
         </div>
       ) : filteredItems.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <MenuCard
-              key={item._id}
-              _id={item._id}
-              name={item.name}
-              category={item.category}
-              description={item.description}
-              price={item.price}
-              images={item.images}
-              isAvailable={item.isAvailable}
-              onEdit={handleEdit}
-              onDelete={(id) => setDeleteConfirmId(id)}
-              onToggleStatus={handleToggleStatus}
-            />
-          ))}
+          {filteredItems.map((item) => {
+            // MenuItem type from the API doesn't include the new optional fields in TS.
+            // Cast to any here so we can pass through sizes/pieces/price when present.
+            const anyItem = item as any;
+            return (
+              <MenuCard
+                key={item._id}
+                _id={item._id}
+                name={item.name}
+                category={item.category}
+                description={item.description}
+                // cast these props to any so TypeScript won't complain if MenuItem type lacks them
+                price={anyItem.price}
+                sizes={anyItem.sizes}
+                pieces={anyItem.pieces}
+                images={item.images}
+                isAvailable={item.isAvailable}
+                onEdit={handleEdit}
+                onDelete={(id) => setDeleteConfirmId(id)}
+                onToggleStatus={handleToggleStatus}
+              />
+            );
+          })}
         </div>
       ) : (
         <Card>
