@@ -93,9 +93,23 @@ export function useCreateMenu(): UseMutationResult<
       data.append("name", formData.name);
       data.append("category", formData.category);
       data.append("description", formData.description);
-      data.append("price[small]", formData.price.small);
-      data.append("price[medium]", formData.price.medium);
-      data.append("price[large]", formData.price.large);
+
+      // price can be either legacy object { small, medium, large } or an array -> handle both
+      if (Array.isArray(formData.price)) {
+        formData.price.forEach((p) => data.append("price", String(p)));
+      } else if (formData.price && typeof formData.price === "object") {
+        data.append("price[small]", String((formData.price as any).small || ""));
+        data.append("price[medium]", String((formData.price as any).medium || ""));
+        data.append("price[large]", String((formData.price as any).large || ""));
+      }
+
+      // append sizes and pieces if present (arrays)
+      if (Array.isArray((formData as any).sizes)) {
+        (formData as any).sizes.forEach((s: any) => data.append("sizes", String(s)));
+      }
+      if (Array.isArray((formData as any).pieces)) {
+        (formData as any).pieces.forEach((p: any) => data.append("pieces", String(p)));
+      }
 
       // Append images
       formData.images.forEach((image) => {
@@ -133,9 +147,23 @@ export function useUpdateMenu(
       data.append("name", formData.name);
       data.append("category", formData.category);
       data.append("description", formData.description);
-      data.append("price[small]", formData.price.small);
-      data.append("price[medium]", formData.price.medium);
-      data.append("price[large]", formData.price.large);
+
+      // Handle both array and legacy object shapes for price
+      if (Array.isArray(formData.price)) {
+        formData.price.forEach((p) => data.append("price", String(p)));
+      } else if (formData.price && typeof formData.price === "object") {
+        data.append("price[small]", String((formData.price as any).small || ""));
+        data.append("price[medium]", String((formData.price as any).medium || ""));
+        data.append("price[large]", String((formData.price as any).large || ""));
+      }
+
+      // append sizes and pieces if present (arrays)
+      if (Array.isArray((formData as any).sizes)) {
+        (formData as any).sizes.forEach((s: any) => data.append("sizes", String(s)));
+      }
+      if (Array.isArray((formData as any).pieces)) {
+        (formData as any).pieces.forEach((p: any) => data.append("pieces", String(p)));
+      }
 
       // Append new images
       formData.images.forEach((image) => {

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { MenuFormData, MenuItem, MenuImage } from "@/lib/services/menu-service";
 
@@ -31,10 +31,39 @@ export function MenuForm({
     name: initialData?.name || "",
     category: initialData?.category || "",
     description: initialData?.description || "",
-    priceSmall: initialData?.price.small.toString() || "",
-    priceMedium: initialData?.price.medium.toString() || "",
-    priceLarge: initialData?.price.large.toString() || "",
   });
+
+  // dynamic sections: each section holds size, pieces and price (strings for inputs)
+  const [sections, setSections] = useState<{ size: string; pieces: string; price: string }[]>(
+    () => {
+      // If initialData already has arrays (new shape), map them
+      const anyInit = initialData as any;
+      if (anyInit?.sizes || anyInit?.pieces || anyInit?.price) {
+        const sizes = Array.isArray(anyInit?.sizes) ? anyInit.sizes : [];
+        const pieces = Array.isArray(anyInit?.pieces) ? anyInit.pieces : [];
+        const price = Array.isArray(anyInit?.price) ? anyInit.price : [];
+        const max = Math.max(sizes.length, pieces.length, price.length, 1);
+        return Array.from({ length: max }).map((_, i) => ({
+          size: sizes[i] != null ? String(sizes[i]) : "",
+          pieces: pieces[i] != null ? String(pieces[i]) : "",
+          price: price[i] != null ? String(price[i]) : "",
+        }));
+      }
+
+      // fallback for legacy initialData.price with small/medium/large
+      const legacyPrice = (initialData as any)?.price;
+      if (legacyPrice && typeof legacyPrice === "object" && ("small" in legacyPrice)) {
+        return [
+          { size: "", pieces: "", price: String(legacyPrice.small ?? "") },
+          { size: "", pieces: "", price: String(legacyPrice.medium ?? "") },
+          { size: "", pieces: "", price: String(legacyPrice.large ?? "") },
+        ];
+      }
+
+      // default single empty section
+      return [{ size: "", pieces: "", price: "" }];
+    }
+  );
 
   console.log(initialData);
 
@@ -47,7 +76,7 @@ export function MenuForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const categories = ["Vegetarian", "Meat", "Seafood", "Premium", "Special"];
+  // const categories = ["Vegetarian", "Meat", "Seafood", "Premium", "Special", "Sides"];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -61,14 +90,26 @@ export function MenuForm({
     if (!formData.description.trim()) {
       newErrors.description = "Description is required";
     }
-    if (!formData.priceSmall || isNaN(parseFloat(formData.priceSmall))) {
-      newErrors.priceSmall = "Valid small price is required";
-    }
-    if (!formData.priceMedium || isNaN(parseFloat(formData.priceMedium))) {
-      newErrors.priceMedium = "Valid medium price is required";
-    }
-    if (!formData.priceLarge || isNaN(parseFloat(formData.priceLarge))) {
-      newErrors.priceLarge = "Valid large price is required";
+
+    // validate dynamic sections
+    if (!sections.length) {
+      newErrors.sections = "At least one size/pieces/price entry is required";
+    } else {
+      for (let i = 0; i < sections.length; i++) {
+        const s = sections[i];
+        if (!s.size.trim() || isNaN(Number(s.size))) {
+          newErrors.sections = "Each section must have a valid numeric size";
+          break;
+        }
+        if (!s.pieces.trim() || isNaN(Number(s.pieces))) {
+          newErrors.sections = "Each section must have a valid numeric pieces value";
+          break;
+        }
+        if (!s.price.trim() || isNaN(Number(s.price))) {
+          newErrors.sections = "Each section must have a valid numeric price";
+          break;
+        }
+      }
     }
 
     if (!initialData && images.length === 0) {
@@ -111,6 +152,31 @@ export function MenuForm({
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // section handlers
+  const addSection = (afterIndex?: number) => {
+    setSections((prev) => {
+      const next = [...prev];
+      const newSection = { size: "", pieces: "", price: "" };
+      if (afterIndex == null || afterIndex < 0 || afterIndex >= next.length) {
+        next.push(newSection);
+      } else {
+        next.splice(afterIndex + 1, 0, newSection);
+      }
+      return next;
+    });
+  };
+
+  const removeSection = (index: number) => {
+    setSections((prev) => {
+      if (prev.length === 1) return prev; // keep at least one
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const updateSection = (index: number, field: "size" | "pieces" | "price", value: string) => {
+    setSections((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -120,18 +186,17 @@ export function MenuForm({
 
     setSubmitting(true);
     try {
-      const menuFormData: MenuFormData = {
+      const menuFormData = {
         name: formData.name,
         category: formData.category,
         description: formData.description,
-        price: {
-          small: formData.priceSmall,
-          medium: formData.priceMedium,
-          large: formData.priceLarge,
-        },
+        // arrays as numbers (use parseFloat to allow decimals for price, sizes may be integer)
+        pieces: sections.map((s) => Number(s.pieces)),
+        sizes: sections.map((s) => Number(s.size)),
+        price: sections.map((s) => Number(s.price)),
         images,
         existingImages: existingImages.map((img) => img?.url),
-      };
+      } as unknown as MenuFormData;
 
       await onSubmit(menuFormData);
     } catch (error) {
@@ -162,26 +227,14 @@ export function MenuForm({
       {/* Category Field */}
       <div>
         <Label htmlFor="category">Category</Label>
-        <Select
+        <Input
+          id="category"
+          placeholder="e.g., Sides"
           value={formData.category}
-          onValueChange={(value) =>
-            setFormData({ ...formData, category: value })
-          }
+          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+          className={errors.category ? "border-destructive" : ""}
           disabled={isLoading}
-        >
-          <SelectTrigger
-            className={errors.category ? "border-destructive" : ""}
-          >
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
         {errors.category && (
           <p className="text-xs text-destructive mt-1">{errors.category}</p>
         )}
@@ -207,77 +260,70 @@ export function MenuForm({
         )}
       </div>
 
-      {/* Price Fields */}
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="priceSmall">Small Price</Label>
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">$</span>
-            <Input
-              id="priceSmall"
-              type="number"
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              value={formData.priceSmall}
-              onChange={(e) =>
-                setFormData({ ...formData, priceSmall: e.target.value })
-              }
-              className={errors.priceSmall ? "border-destructive" : ""}
-              disabled={isLoading}
-            />
-          </div>
-          {errors.priceSmall && (
-            <p className="text-xs text-destructive mt-1">{errors.priceSmall}</p>
-          )}
-        </div>
+      {/* Sizes / Pieces / Prices - dynamic sections */}
+      <div>
+        <Label>Sizes, Pieces, Prices</Label>
+        {errors.sections && (
+          <p className="text-xs text-destructive mt-1">{errors.sections}</p>
+        )}
+        <div className="space-y-3 mt-2">
+          {sections.map((sec, idx) => (
+            <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+              <div className="col-span-4">
+                <Label className="text-xs">Size</Label>
+                <Input
+                  value={sec.size}
+                  onChange={(e) => updateSection(idx, "size", e.target.value)}
+                  placeholder="e.g., 21"
+                  className=""
+                  disabled={isLoading}
+                />
+              </div>
 
-        <div>
-          <Label htmlFor="priceMedium">Medium Price</Label>
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">$</span>
-            <Input
-              id="priceMedium"
-              type="number"
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              value={formData.priceMedium}
-              onChange={(e) =>
-                setFormData({ ...formData, priceMedium: e.target.value })
-              }
-              className={errors.priceMedium ? "border-destructive" : ""}
-              disabled={isLoading}
-            />
-          </div>
-          {errors.priceMedium && (
-            <p className="text-xs text-destructive mt-1">
-              {errors.priceMedium}
-            </p>
-          )}
-        </div>
+              <div className="col-span-4">
+                <Label className="text-xs">Pieces</Label>
+                <Input
+                  value={sec.pieces}
+                  onChange={(e) => updateSection(idx, "pieces", e.target.value)}
+                  placeholder="e.g., 10"
+                  className=""
+                  disabled={isLoading}
+                />
+              </div>
 
-        <div>
-          <Label htmlFor="priceLarge">Large Price</Label>
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">$</span>
-            <Input
-              id="priceLarge"
-              type="number"
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              value={formData.priceLarge}
-              onChange={(e) =>
-                setFormData({ ...formData, priceLarge: e.target.value })
-              }
-              className={errors.priceLarge ? "border-destructive" : ""}
-              disabled={isLoading}
-            />
-          </div>
-          {errors.priceLarge && (
-            <p className="text-xs text-destructive mt-1">{errors.priceLarge}</p>
-          )}
+              <div className="col-span-3">
+                <Label className="text-xs">Price ($)</Label>
+                <Input
+                  value={sec.price}
+                  onChange={(e) => updateSection(idx, "price", e.target.value)}
+                  placeholder="e.g., 22.00"
+                  className=""
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="col-span-1 flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => addSection(idx)}
+                  className="p-2 rounded-md border hover:bg-muted"
+                  title="Add section"
+                  disabled={isLoading}
+                >
+                  <Plus size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeSection(idx)}
+                  className="p-2 rounded-md border hover:bg-muted disabled:opacity-50"
+                  title="Remove section"
+                  disabled={isLoading || sections.length === 1}
+                >
+                  <Minus size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
